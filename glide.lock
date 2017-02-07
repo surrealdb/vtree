@@ -1,8 +1,8 @@
 hash: 4d1893061d0ff734c07dbed3c08d185b2ac6d7b846726dc05c1b35f2277c3d87
-updated: 2017-02-07T19:51:19.356683911Z
+updated: 2017-02-07T19:58:07.45257521Z
 imports:
 - name: github.com/abcum/ptree
-  version: 1671f36b94d9cc5b6b7ae57f5f543c6dcda37212
+  version: d069bcc416d4c6af50ee5213f680c7c673366e39
 - name: github.com/abcum/tlist
   version: edc082e04c51f0051857467b6598377a6a0f0b50
 testImports:
