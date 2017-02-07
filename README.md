@@ -12,6 +12,7 @@ Vtree is an in-memory multi-version patricia tree package for Golang.
 - Versioned key-value items
 - Select key-value items since a specific version
 - Insert, and delete key-value items with a specific version
+- Iterate through all versions of every key-value item
 
 #### Installation
 
