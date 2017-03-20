@@ -67,8 +67,7 @@ clean:
 	rm -rf vendor
 	$(GO) clean -i `glide novendor`
 	find . -name '*.test' -type f -exec rm -f {} \;
-	find . -name '*.gen.go' -type f -exec rm -f {} \;
-	find . -name '*.coverprofile' -type f -exec rm -f {} \;
+	find . -name '*.cover' -type f -exec rm -f {} \;
 
 # The `make setup` command runs the
 # go generate command in all of the
