@@ -1,19 +1,19 @@
 hash: 4d1893061d0ff734c07dbed3c08d185b2ac6d7b846726dc05c1b35f2277c3d87
-updated: 2017-02-11T11:23:43.231768018Z
+updated: 2017-04-26T23:56:46.391695475+01:00
 imports:
 - name: github.com/abcum/ptree
-  version: 370a8408d0a58c4d23e97d4b9b1e414ab6968c6c
+  version: 988d018813f66208e771582e612ed618d11f5482
 - name: github.com/abcum/tlist
-  version: 6b360198b535c86814b308951162b6e549014b95
+  version: 229930efe067d6dae62436d9cf6664d48e2e773f
 testImports:
 - name: github.com/gopherjs/gopherjs
-  version: acd7601d2a20b8dbef844f92b7bdb031f05f4442
+  version: 265040a1352e0bb611e87f5b985bf83600c66cce
   subpackages:
   - js
 - name: github.com/jtolds/gls
   version: bb0351aa7eb6f322f32667d51375f26a2bca6628
 - name: github.com/smartystreets/assertions
-  version: 26acb9229f421449ac63d014995b282d59261a8b
+  version: c9ee7d9e9a2aeec0bee7c4a516f3e0ad7cb7e558
   subpackages:
   - internal/go-render/render
   - internal/oglematchers
