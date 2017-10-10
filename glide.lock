@@ -1,24 +1,24 @@
 hash: 4d1893061d0ff734c07dbed3c08d185b2ac6d7b846726dc05c1b35f2277c3d87
-updated: 2017-04-26T23:59:44.583798412+01:00
+updated: 2017-10-10T17:07:20.657096+01:00
 imports:
 - name: github.com/abcum/ptree
   version: 36cafa0736cf6a56612d703bbb5a3eee31b31fb9
 - name: github.com/abcum/tlist
-  version: 229930efe067d6dae62436d9cf6664d48e2e773f
+  version: 9f7bbc04b67495c392639e51b549386fbe6808e9
 testImports:
 - name: github.com/gopherjs/gopherjs
-  version: 265040a1352e0bb611e87f5b985bf83600c66cce
+  version: 415225646bb92c4449bb484646f2c95a98402f6f
   subpackages:
   - js
 - name: github.com/jtolds/gls
-  version: bb0351aa7eb6f322f32667d51375f26a2bca6628
+  version: 77f18212c9c7edc9bd6a33d383a7b545ce62f064
 - name: github.com/smartystreets/assertions
-  version: c9ee7d9e9a2aeec0bee7c4a516f3e0ad7cb7e558
+  version: 0b37b35ec7434b77e77a4bb29b79677cced992ea
   subpackages:
   - internal/go-render/render
   - internal/oglematchers
 - name: github.com/smartystreets/goconvey
-  version: d4c757aa9afd1e2fc1832aaab209b5794eb336e1
+  version: 9e8dc3f972df6c8fcc0375ef492c24d0bb204857
   subpackages:
   - convey
   - convey/gotest
