@@ -1,9 +1,8 @@
 package: github.com/abcum/vtree
 import:
-- package: github.com/abcum/ptree
 - package: github.com/abcum/tlist
 testImport:
 - package: github.com/smartystreets/goconvey
-  version: ^1.6.2
+  version: ^1.6.3
   subpackages:
   - convey
