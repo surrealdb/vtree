@@ -1,13 +1,13 @@
 hash: 4d1893061d0ff734c07dbed3c08d185b2ac6d7b846726dc05c1b35f2277c3d87
-updated: 2017-10-10T17:07:20.657096+01:00
+updated: 2017-10-27T21:06:16.546843+01:00
 imports:
 - name: github.com/abcum/ptree
-  version: 36cafa0736cf6a56612d703bbb5a3eee31b31fb9
+  version: 37a6b6e1a220d015fd5004e415caf095b1296858
 - name: github.com/abcum/tlist
-  version: 9f7bbc04b67495c392639e51b549386fbe6808e9
+  version: 5f7fe19d2c77b97b298b18802c94e5b10e39743d
 testImports:
 - name: github.com/gopherjs/gopherjs
-  version: 415225646bb92c4449bb484646f2c95a98402f6f
+  version: a0a7cfed7b2a54080888fd2b3d4a3ec14562c86c
   subpackages:
   - js
 - name: github.com/jtolds/gls
