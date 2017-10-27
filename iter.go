@@ -15,7 +15,7 @@
 package vtree
 
 import (
-	"github.com/abcum/ptree"
+	"bytes"
 )
 
 // Cursor represents an iterator that can traverse over all key-value
@@ -26,37 +26,47 @@ import (
 // reposition your cursor after mutating data.
 type Cursor struct {
 	ver  int64
-	pntr *ptree.Cursor
+	tree *Copy
+	seek []byte
+	path []*item
+}
+
+type item struct {
+	pos  int
+	node *Node
 }
 
 // Del removes the current item under the cursor from the tree. If
 // the cursor has not yet been positioned using First, Last, or Seek,
 // then no item is deleted and a nil key and value are returned.
 func (c *Cursor) Del() ([]byte, interface{}) {
-	if key, val := c.pntr.Del(); key != nil {
-		return key, val.(*list).Get(c.ver)
-	}
-	return nil, nil
+
+	val := c.tree.Del(c.ver, c.seek)
+
+	return c.seek, val
+
 }
 
 // First moves the cursor to the first item in the tree and returns
 // its key and value. If the tree is empty then a nil key and value
 // are returned.
 func (c *Cursor) First() ([]byte, interface{}) {
-	if key, val := c.pntr.First(); key != nil {
-		return key, val.(*list).Get(c.ver)
-	}
-	return nil, nil
+
+	c.path = nil
+
+	return c.first(c.tree.root)
+
 }
 
 // Last moves the cursor to the last item in the tree and returns its
 // key and value. If the tree is empty then a nil key and value are
 // returned.
 func (c *Cursor) Last() ([]byte, interface{}) {
-	if key, val := c.pntr.Last(); key != nil {
-		return key, val.(*list).Get(c.ver)
-	}
-	return nil, nil
+
+	c.path = nil
+
+	return c.last(c.tree.root)
+
 }
 
 // Prev moves the cursor to the previous item in the tree and returns
@@ -65,10 +75,88 @@ func (c *Cursor) Last() ([]byte, interface{}) {
 // and value are returned. If the cursor has not yet been positioned
 // using First, Last, or Seek, then a nil key and value are returned.
 func (c *Cursor) Prev() ([]byte, interface{}) {
-	if key, val := c.pntr.Prev(); key != nil {
-		return key, val.(*list).Get(c.ver)
+
+OUTER:
+	for {
+
+		if len(c.path) == 0 {
+			break
+		}
+
+		// ------------------------------
+		// Decrease counter
+		// ------------------------------
+
+		for {
+
+			x := len(c.path) - 1
+
+			if c.path[x].pos == 0 {
+
+				c.path = c.path[:x]
+
+				if len(c.path) == 0 {
+					break OUTER
+				}
+
+				n := c.node()
+
+				if n.isLeaf() {
+					c.seek = n.leaf.key
+					if val := n.leaf.val.Get(c.ver); val != nil {
+						return n.leaf.key, val
+					}
+				}
+
+				continue
+
+			}
+
+			break
+
+		}
+
+		// ------------------------------
+		// Decrease edges
+		// ------------------------------
+
+		for {
+
+			x := len(c.path) - 1
+
+			if c.path[x].pos-1 >= 0 {
+
+				c.path[x].pos--
+
+				n := c.node()
+
+				for {
+
+					if num := len(n.edges); num > 0 {
+						c.path = append(c.path, &item{pos: num - 1, node: n})
+						n = n.edges[num-1]
+						continue
+					}
+
+					if n.isLeaf() {
+						c.seek = n.leaf.key
+						if val := n.leaf.val.Get(c.ver); val != nil {
+							return n.leaf.key, val
+						}
+					}
+
+					continue OUTER
+
+				}
+
+			}
+
+		}
+
 	}
+
 	return nil, nil
+
 }
 
 // Next moves the cursor to the next item in the tree and returns its
@@ -77,18 +165,223 @@ func (c *Cursor) Prev() ([]byte, interface{}) {
 // and value are returned. If the cursor has not yet been positioned
 // using First, Last, or Seek, then a nil key and value are returned.
 func (c *Cursor) Next() ([]byte, interface{}) {
-	if key, val := c.pntr.Next(); key != nil {
-		return key, val.(*list).Get(c.ver)
+
+OUTER:
+	for {
+
+		if len(c.path) == 0 {
+			break
+		}
+
+		n := c.node()
+
+		// ------------------------------
+		// Increase edges
+		// ------------------------------
+
+		for {
+
+			if len(n.edges) > 0 {
+
+				c.path = append(c.path, &item{pos: 0, node: n})
+				n = n.edges[0]
+
+				if n.isLeaf() {
+					c.seek = n.leaf.key
+					if val := n.leaf.val.Get(c.ver); val != nil {
+						return n.leaf.key, val
+					}
+				}
+
+				continue
+
+			}
+
+			break
+
+		}
+
+		// ------------------------------
+		// Increase counter
+		// ------------------------------
+
+		for {
+
+			if len(c.path) == 0 {
+				break OUTER
+			}
+
+			x := len(c.path) - 1
+
+			if c.path[x].pos+1 < len(c.path[x].node.edges) {
+
+				c.path[x].pos++
+
+				n = c.node()
+
+				if n.isLeaf() {
+					c.seek = n.leaf.key
+					if val := n.leaf.val.Get(c.ver); val != nil {
+						return n.leaf.key, val
+					}
+				}
+
+				continue OUTER
+
+			} else {
+
+				c.path = c.path[:x]
+
+				continue
+
+			}
+
+		}
+
 	}
+
 	return nil, nil
+
 }
 
 // Seek moves the cursor to a given key in the tree and returns it.
 // If the specified key does not exist then the next key in the tree
 // is used. If no keys follow, then a nil key and value are returned.
 func (c *Cursor) Seek(key []byte) ([]byte, interface{}) {
-	if key, val := c.pntr.Seek(key); key != nil {
-		return key, val.(*list).Get(c.ver)
+
+	s := key
+
+	n := c.tree.root
+
+	c.path = nil
+
+	var x int
+
+	// OUTER:
+	for {
+
+		// Check for key exhaution
+		if len(s) == 0 {
+			return c.first(n)
+		}
+
+		t := n
+
+		// Look for an edge
+		if x, n = n.getSub(s[0]); n == nil {
+
+			if len(t.edges) == 0 {
+				return c.Next()
+			} else if s[0] < t.edges[0].prefix[0] {
+				if len(c.path) == 0 {
+					return c.first(c.tree.root)
+				}
+				return c.first(c.path[len(c.path)-1].node)
+			} else if s[0] > t.edges[len(t.edges)-1].prefix[0] {
+				if len(c.path) == 0 {
+					break
+				}
+				return c.last(c.path[len(c.path)-1].node)
+			}
+
+			break
+
+		}
+
+		// Consume the search prefix
+		if bytes.Compare(s, n.prefix) == 0 {
+			c.path = append(c.path, &item{pos: x, node: t})
+			s = s[:0]
+			continue
+		} else if bytes.HasPrefix(s, n.prefix) {
+			c.path = append(c.path, &item{pos: x, node: t})
+			s = s[len(n.prefix):]
+			continue
+		} else if bytes.HasPrefix(n.prefix, s) {
+			c.path = append(c.path, &item{pos: x, node: t})
+			s = s[:0]
+			continue
+		} else if bytes.Compare(s, n.prefix) < 0 {
+			c.path = append(c.path, &item{pos: x, node: t})
+			s = s[:0]
+			continue
+		} else if bytes.Compare(s, n.prefix) > 0 {
+			c.last(n)
+			return c.Next()
+		}
+
+		break
+
 	}
+
+	c.path = nil
+
 	return nil, nil
+
+}
+
+// ------
+
+func (c *Cursor) node() *Node {
+
+	var x int
+
+	x = len(c.path) - 1
+
+	if len(c.path[x].node.edges) <= c.path[x].pos {
+		c.Seek(c.seek)
+		x = len(c.path) - 1
+	}
+
+	return c.path[x].node.edges[c.path[x].pos]
+
+}
+
+func (c *Cursor) first(n *Node) ([]byte, interface{}) {
+
+	for {
+
+		if n.isLeaf() {
+			c.seek = n.leaf.key
+			if val := n.leaf.val.Get(c.ver); val != nil {
+				return n.leaf.key, val
+			}
+		}
+
+		if len(n.edges) > 0 {
+			c.path = append(c.path, &item{pos: 0, node: n})
+			n = n.edges[0]
+		} else {
+			break
+		}
+
+	}
+
+	return nil, nil
+
+}
+
+func (c *Cursor) last(n *Node) ([]byte, interface{}) {
+
+	for {
+
+		if num := len(n.edges); num > 0 {
+			c.path = append(c.path, &item{pos: num - 1, node: n})
+			n = n.edges[num-1]
+			continue
+		}
+
+		if n.isLeaf() {
+			c.seek = n.leaf.key
+			if val := n.leaf.val.Get(c.ver); val != nil {
+				return n.leaf.key, val
+			}
+		}
+
+		break
+
+	}
+
+	return nil, nil
+
 }

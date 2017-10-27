@@ -15,62 +15,334 @@
 package vtree
 
 import (
-	"github.com/abcum/ptree"
+	"bytes"
+	"sort"
 )
 
 // Node represents an immutable node in the radix tree which
 // can be either an edge node or a leaf node.
 type Node struct {
-	pntr *ptree.Node
+	leaf   *leaf
+	edges  []*Node
+	prefix []byte
+}
+
+type leaf struct {
+	key []byte
+	val *list
 }
 
 // Min returns the key and value of the minimum item in the
 // subtree of the current node.
 func (n *Node) Min(ver int64) ([]byte, interface{}) {
-	if key, val := n.pntr.Min(); key != nil {
-		return key, val.(*list).Get(ver)
+
+	for {
+
+		if n.isLeaf() {
+			if val := n.leaf.val.Get(ver); val != nil {
+				return n.leaf.key, val
+			}
+		}
+
+		if len(n.edges) > 0 {
+			n = n.edges[0]
+		} else {
+			break
+		}
+
 	}
+
 	return nil, nil
+
 }
 
 // Max returns the key and value of the maximum item in the
 // subtree of the current node.
 func (n *Node) Max(ver int64) ([]byte, interface{}) {
-	if key, val := n.pntr.Max(); key != nil {
-		return key, val.(*list).Get(ver)
+
+	for {
+
+		if num := len(n.edges); num > 0 {
+			n = n.edges[num-1]
+			continue
+		}
+
+		if n.isLeaf() {
+			if val := n.leaf.val.Get(ver); val != nil {
+				return n.leaf.key, val
+			}
+		}
+
+		break
+
 	}
+
 	return nil, nil
+
 }
 
 // Path is used to recurse over the tree only visiting nodes
 // which are above this node in the tree.
 func (n *Node) Path(ver int64, key []byte, f Walker) {
-	n.pntr.Path(key, func(key []byte, val interface{}) (exit bool) {
-		if val := val.(*list).Get(ver); val != nil {
-			return f(key, val)
+
+	s := key
+
+	for {
+
+		if n.leaf != nil && f(n.leaf.key, n.leaf.val.Get(ver)) {
+			return
 		}
-		return
-	})
+
+		if len(s) == 0 {
+			return
+		}
+
+		if _, n = n.getSub(s[0]); n == nil {
+			return
+		}
+
+		if bytes.HasPrefix(s, n.prefix) {
+			s = s[len(n.prefix):]
+		} else {
+			break
+		}
+
+	}
+
 }
 
 // Subs is used to recurse over the tree only visiting nodes
 // which are directly under this node in the tree.
 func (n *Node) Subs(ver int64, key []byte, f Walker) {
-	n.pntr.Subs(key, func(key []byte, val interface{}) (exit bool) {
-		if val := val.(*list).Get(ver); val != nil {
-			return f(key, val)
+
+	s := key
+
+	for {
+
+		// Check for key exhaution
+		if len(s) == 0 {
+			subs(ver, n, f, false)
+			return
 		}
-		return
-	})
+
+		// Look for an edge
+		if _, n = n.getSub(s[0]); n == nil {
+			break
+		}
+
+		// Consume the search prefix
+		if bytes.HasPrefix(s, n.prefix) {
+			s = s[len(n.prefix):]
+		} else if bytes.HasPrefix(n.prefix, s) {
+			subs(ver, n, f, true)
+			return
+		} else {
+			break
+		}
+
+	}
+
 }
 
 // Walk is used to recurse over the tree only visiting nodes
 // which are under this node in the tree.
 func (n *Node) Walk(ver int64, key []byte, f Walker) {
-	n.pntr.Walk(key, func(key []byte, val interface{}) (exit bool) {
-		if val := val.(*list).Get(ver); val != nil {
-			return f(key, val)
+
+	s := key
+
+	for {
+
+		// Check for key exhaution
+		if len(s) == 0 {
+			walk(ver, n, f, false)
+			return
 		}
-		return
+
+		// Look for an edge
+		if _, n = n.getSub(s[0]); n == nil {
+			break
+		}
+
+		// Consume the search prefix
+		if bytes.HasPrefix(s, n.prefix) {
+			s = s[len(n.prefix):]
+		} else if bytes.HasPrefix(n.prefix, s) {
+			walk(ver, n, f, false)
+			return
+		} else {
+			break
+		}
+
+	}
+
+}
+
+// ------------------------------
+// ------------------------------
+// ------------------------------
+// ------------------------------
+// ------------------------------
+
+func (n *Node) isLeaf() bool {
+	return n.leaf != nil
+}
+
+func (n *Node) dup() *Node {
+	d := &Node{}
+	if n.leaf != nil {
+		d.leaf = &leaf{}
+		*d.leaf = *n.leaf
+	}
+	if n.prefix != nil {
+		d.prefix = make([]byte, len(n.prefix))
+		copy(d.prefix, n.prefix)
+	}
+	if len(n.edges) != 0 {
+		d.edges = make([]*Node, len(n.edges))
+		copy(d.edges, n.edges)
+	}
+	return d
+}
+
+func (n *Node) addSub(s *Node) {
+	num := len(n.edges)
+	idx := sort.Search(num, func(i int) bool {
+		return n.edges[i].prefix[0] >= s.prefix[0]
 	})
+	n.edges = append(n.edges, s)
+	if idx != num {
+		copy(n.edges[idx+1:], n.edges[idx:num])
+		n.edges[idx] = s
+	}
+}
+
+func (n *Node) repSub(s *Node) {
+	num := len(n.edges)
+	idx := sort.Search(num, func(i int) bool {
+		return n.edges[i].prefix[0] >= s.prefix[0]
+	})
+	if idx < num && n.edges[idx].prefix[0] == s.prefix[0] {
+		n.edges[idx] = s
+		return
+	}
+	panic("replacing missing edge")
+}
+
+func (n *Node) getSub(label byte) (int, *Node) {
+	num := len(n.edges)
+	idx := sort.Search(num, func(i int) bool {
+		return n.edges[i].prefix[0] >= label
+	})
+	if idx < num && n.edges[idx].prefix[0] == label {
+		return idx, n.edges[idx]
+	}
+	return -1, nil
+}
+
+func (n *Node) delSub(label byte) {
+	num := len(n.edges)
+	idx := sort.Search(num, func(i int) bool {
+		return n.edges[i].prefix[0] >= label
+	})
+	if idx < num && n.edges[idx].prefix[0] == label {
+		copy(n.edges[idx:], n.edges[idx+1:])
+		n.edges[len(n.edges)-1] = nil
+		n.edges = n.edges[:len(n.edges)-1]
+	}
+}
+
+func (n *Node) mergeChild() {
+	e := n.edges[0]
+	child := e
+	n.prefix = concat(n.prefix, child.prefix)
+	if child.leaf != nil {
+		n.leaf = new(leaf)
+		*n.leaf = *child.leaf
+	} else {
+		n.leaf = nil
+	}
+	if len(child.edges) != 0 {
+		n.edges = make([]*Node, len(child.edges))
+		copy(n.edges, child.edges)
+	} else {
+		n.edges = nil
+	}
+}
+
+func subs(t int64, n *Node, f Walker, sub bool) bool {
+
+	// Visit the leaf values if any
+	if sub && n.leaf != nil {
+		if val := n.leaf.val.Get(t); val != nil {
+			if f(n.leaf.key, val) {
+				return true
+			}
+			return false
+		}
+	}
+
+	// Recurse on the children
+	for _, e := range n.edges {
+		if subs(t, e, f, true) {
+			return true
+		}
+	}
+
+	return false
+
+}
+
+func walk(t int64, n *Node, f Walker, sub bool) bool {
+
+	// Visit the leaf values if any
+	if n.leaf != nil {
+		if val := n.leaf.val.Get(t); val != nil {
+			if f(n.leaf.key, val) {
+				return true
+			}
+		}
+	}
+
+	// Recurse on the children
+	for _, e := range n.edges {
+		if walk(t, e, f, true) {
+			return true
+		}
+	}
+
+	return false
+
+}
+
+func (n *Node) get(k []byte) interface{} {
+
+	s := k
+
+	for {
+
+		// Check for key exhaution
+		if len(s) == 0 {
+			if n.isLeaf() {
+				return n.leaf.val
+			}
+			break
+		}
+
+		// Look for an edge
+		_, n = n.getSub(s[0])
+		if n == nil {
+			break
+		}
+
+		// Consume the search prefix
+		if bytes.HasPrefix(s, n.prefix) {
+			s = s[len(n.prefix):]
+		} else {
+			break
+		}
+
+	}
+
+	return nil
+
 }

@@ -14,28 +14,25 @@
 
 package vtree
 
-import (
-	"github.com/abcum/ptree"
-)
-
 // Tree represents an immutable versioned radix tree.
 type Tree struct {
-	pntr *ptree.Tree
+	size int
+	root *Node
 }
 
 // New returns an empty Tree
 func New() *Tree {
-	return &Tree{pntr: ptree.New()}
+	return &Tree{root: &Node{}}
 }
 
 // Size is used to return the number of elements in the tree.
 func (t *Tree) Size() int {
-	return t.pntr.Size()
+	return t.size
 }
 
 // Copy starts a new transaction that can be used to mutate the tree
 func (t *Tree) Copy() *Copy {
-	return &Copy{pntr: t.pntr.Copy()}
+	return &Copy{size: t.size, root: t.root}
 }
 
 // Walker represents a callback function which is to be used when
