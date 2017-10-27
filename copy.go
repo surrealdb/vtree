@@ -41,15 +41,15 @@ func (c *Copy) Tree() *Tree {
 }
 
 // Cursor returns a new cursor for iterating through the radix tree.
-func (c *Copy) Cursor() *Cursor {
-	return &Cursor{pntr: c.pntr.Cursor()}
+func (c *Copy) Cursor(ver int64) *Cursor {
+	return &Cursor{pntr: c.pntr.Cursor(), ver: ver}
 }
 
 // Put is used to insert a specific key, returning the previous value.
-func (c *Copy) Put(ver int64, key []byte, val []byte) []byte {
+func (c *Copy) Put(ver int64, key []byte, val interface{}) interface{} {
 
 	if lst := c.pntr.Get(key); lst != nil {
-		return lst.(*List).Put(ver, val)
+		return lst.(*list).Put(ver, val)
 	}
 
 	lst := newList()
@@ -61,20 +61,20 @@ func (c *Copy) Put(ver int64, key []byte, val []byte) []byte {
 }
 
 // Get is used to retrieve a specific key, returning the current value.
-func (c *Copy) Get(ver int64, key []byte) []byte {
+func (c *Copy) Get(ver int64, key []byte) interface{} {
 
-	switch {
+	switch ver {
 
 	default:
 
 		if lst := c.pntr.Get(key); lst != nil {
-			return lst.(*List).Get(ver)
+			return lst.(*list).Get(ver)
 		}
 
-	case ver == 0:
+	case 0:
 
 		if lst := c.pntr.Get(key); lst != nil {
-			return lst.(*List).Max()
+			return lst.(*list).Max()
 		}
 
 	}
@@ -84,20 +84,20 @@ func (c *Copy) Get(ver int64, key []byte) []byte {
 }
 
 // Del is used to delete a given key, returning the previous value.
-func (c *Copy) Del(ver int64, key []byte) []byte {
+func (c *Copy) Del(ver int64, key []byte) interface{} {
 
-	switch {
+	switch ver {
 
 	default:
 
 		if lst := c.pntr.Get(key); lst != nil {
-			return lst.(*List).Del(ver)
+			return lst.(*list).Del(ver)
 		}
 
-	case ver == 0:
+	case 0:
 
 		if lst := c.pntr.Del(key); lst != nil {
-			return lst.(*List).Max()
+			return lst.(*list).Max()
 		}
 
 	}

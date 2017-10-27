@@ -15,36 +15,32 @@
 package vtree
 
 import (
-	"math"
-
 	"github.com/abcum/tlist"
 )
 
 // List represents a collection of versions and values, stored
 // in order of version number.
-type List struct {
+type list struct {
 	pntr *tlist.List
 }
 
-func newList() *List {
-	return &List{
+func newList() *list {
+	return &list{
 		pntr: tlist.New(),
 	}
 }
 
 // Put inserts a value with the specified version number. It
 // returns the previous value, or nil if it does not exist.
-func (l *List) Put(ver int64, val []byte) []byte {
+func (l *list) Put(ver int64, val interface{}) interface{} {
 
 	var i *tlist.Item
-	var o []byte
+	var o interface{}
 
 	switch ver {
 	default:
 		i = l.pntr.Get(ver, tlist.Upto)
-	case math.MinInt64:
-		i = l.pntr.Min()
-	case math.MaxInt64:
+	case 0:
 		i = l.pntr.Max()
 	}
 
@@ -52,13 +48,13 @@ func (l *List) Put(ver int64, val []byte) []byte {
 		o = i.Val()
 	}
 
-	l.pntr.Put(ver, val)
-
-	if i != nil {
-		return o
+	if i != nil && i.Ver() == ver {
+		i.Set(val)
+	} else {
+		l.pntr.Put(ver, val)
 	}
 
-	return nil
+	return o
 
 }
 
@@ -67,16 +63,14 @@ func (l *List) Put(ver int64, val []byte) []byte {
 // If math.MinInt64 is specified for the version, then the
 // first item will be returned, and if math.MaxInt64 is used
 // then the latest item will be returned.
-func (l *List) Get(ver int64) []byte {
+func (l *list) Get(ver int64) interface{} {
 
 	var i *tlist.Item
 
 	switch ver {
 	default:
 		i = l.pntr.Get(ver, tlist.Upto)
-	case math.MinInt64:
-		i = l.pntr.Min()
-	case math.MaxInt64:
+	case 0:
 		i = l.pntr.Max()
 	}
 
@@ -93,20 +87,9 @@ func (l *List) Get(ver int64) []byte {
 // If math.MinInt64 is specified for the version, then the
 // first item will be deleted, and if math.MaxInt64 is used
 // then the latest item will be deleted.
-func (l *List) Del(ver int64) []byte {
+func (l *list) Del(ver int64) interface{} {
 
-	var i *tlist.Item
-
-	switch ver {
-	default:
-		i = l.pntr.Del(ver, tlist.Upto)
-	case math.MinInt64:
-		i = l.pntr.Min()
-	case math.MaxInt64:
-		i = l.pntr.Max()
-	}
-
-	if i != nil {
+	if i := l.pntr.Del(ver, tlist.Upto); i != nil {
 		return i.Del().Val()
 	}
 
@@ -115,11 +98,9 @@ func (l *List) Del(ver int64) []byte {
 }
 
 // Min returns the value of the minium version in the list.
-func (l *List) Min() []byte {
+func (l *list) Min() interface{} {
 
-	i := l.pntr.Min()
-
-	if i != nil {
+	if i := l.pntr.Min(); i != nil {
 		return i.Val()
 	}
 
@@ -128,50 +109,12 @@ func (l *List) Min() []byte {
 }
 
 // Max returns the value of the maximum version in the list.
-func (l *List) Max() []byte {
+func (l *list) Max() interface{} {
 
-	i := l.pntr.Max()
-
-	if i != nil {
+	if i := l.pntr.Max(); i != nil {
 		return i.Val()
 	}
 
 	return nil
-
-}
-
-// Seek searches for a value prior to the specified version
-// number, and returns its version and value. If math.MinInt64
-// is specified for the version, then the first item will be
-// returned, and if math.MaxInt64 is used then the latest item
-// will be returned.
-func (l *List) Seek(ver int64) (int64, []byte) {
-
-	var i *tlist.Item
-
-	switch ver {
-	default:
-		i = l.pntr.Get(ver, tlist.Upto)
-	case math.MinInt64:
-		i = l.pntr.Min()
-	case math.MaxInt64:
-		i = l.pntr.Max()
-	}
-
-	if i != nil {
-		return i.Ver(), i.Val()
-	}
-
-	return -1, nil
-
-}
-
-// Walk iterates through all of the versions and values in the
-// list, in order of version, starting at the first version.
-func (l *List) Walk(fn func(ver int64, val []byte) (exit bool)) {
-
-	l.pntr.Walk(func(i *tlist.Item) bool {
-		return fn(i.Ver(), i.Val())
-	})
 
 }

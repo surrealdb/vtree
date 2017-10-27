@@ -26,42 +26,51 @@ type Node struct {
 
 // Min returns the key and value of the minimum item in the
 // subtree of the current node.
-func (n *Node) Min() ([]byte, *List) {
+func (n *Node) Min(ver int64) ([]byte, interface{}) {
 	if key, val := n.pntr.Min(); key != nil {
-		return key, val.(*List)
+		return key, val.(*list).Get(ver)
 	}
 	return nil, nil
 }
 
 // Max returns the key and value of the maximum item in the
 // subtree of the current node.
-func (n *Node) Max() ([]byte, *List) {
+func (n *Node) Max(ver int64) ([]byte, interface{}) {
 	if key, val := n.pntr.Max(); key != nil {
-		return key, val.(*List)
+		return key, val.(*list).Get(ver)
 	}
 	return nil, nil
 }
 
 // Path is used to recurse over the tree only visiting nodes
 // which are above this node in the tree.
-func (n *Node) Path(p []byte, f Walker) {
-	n.pntr.Path(p, func(key []byte, val interface{}) (exit bool) {
-		return f(key, val.(*List))
+func (n *Node) Path(ver int64, key []byte, f Walker) {
+	n.pntr.Path(key, func(key []byte, val interface{}) (exit bool) {
+		if val := val.(*list).Get(ver); val != nil {
+			return f(key, val)
+		}
+		return
 	})
 }
 
 // Subs is used to recurse over the tree only visiting nodes
 // which are directly under this node in the tree.
-func (n *Node) Subs(p []byte, f Walker) {
-	n.pntr.Subs(p, func(key []byte, val interface{}) (exit bool) {
-		return f(key, val.(*List))
+func (n *Node) Subs(ver int64, key []byte, f Walker) {
+	n.pntr.Subs(key, func(key []byte, val interface{}) (exit bool) {
+		if val := val.(*list).Get(ver); val != nil {
+			return f(key, val)
+		}
+		return
 	})
 }
 
 // Walk is used to recurse over the tree only visiting nodes
 // which are under this node in the tree.
-func (n *Node) Walk(p []byte, f Walker) {
-	n.pntr.Walk(p, func(key []byte, val interface{}) (exit bool) {
-		return f(key, val.(*List))
+func (n *Node) Walk(ver int64, key []byte, f Walker) {
+	n.pntr.Walk(key, func(key []byte, val interface{}) (exit bool) {
+		if val := val.(*list).Get(ver); val != nil {
+			return f(key, val)
+		}
+		return
 	})
 }

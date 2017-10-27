@@ -25,15 +25,16 @@ import (
 // invalidated and return unexpected keys and/or values. You must
 // reposition your cursor after mutating data.
 type Cursor struct {
+	ver  int64
 	pntr *ptree.Cursor
 }
 
 // Del removes the current item under the cursor from the tree. If
 // the cursor has not yet been positioned using First, Last, or Seek,
 // then no item is deleted and a nil key and value are returned.
-func (c *Cursor) Del() ([]byte, *List) {
+func (c *Cursor) Del() ([]byte, interface{}) {
 	if key, val := c.pntr.Del(); key != nil {
-		return key, val.(*List)
+		return key, val.(*list).Get(c.ver)
 	}
 	return nil, nil
 }
@@ -41,9 +42,9 @@ func (c *Cursor) Del() ([]byte, *List) {
 // First moves the cursor to the first item in the tree and returns
 // its key and value. If the tree is empty then a nil key and value
 // are returned.
-func (c *Cursor) First() ([]byte, *List) {
+func (c *Cursor) First() ([]byte, interface{}) {
 	if key, val := c.pntr.First(); key != nil {
-		return key, val.(*List)
+		return key, val.(*list).Get(c.ver)
 	}
 	return nil, nil
 }
@@ -51,9 +52,9 @@ func (c *Cursor) First() ([]byte, *List) {
 // Last moves the cursor to the last item in the tree and returns its
 // key and value. If the tree is empty then a nil key and value are
 // returned.
-func (c *Cursor) Last() ([]byte, *List) {
+func (c *Cursor) Last() ([]byte, interface{}) {
 	if key, val := c.pntr.Last(); key != nil {
-		return key, val.(*List)
+		return key, val.(*list).Get(c.ver)
 	}
 	return nil, nil
 }
@@ -63,9 +64,9 @@ func (c *Cursor) Last() ([]byte, *List) {
 // returned, and if the cursor is at the start of the tree then a nil key
 // and value are returned. If the cursor has not yet been positioned
 // using First, Last, or Seek, then a nil key and value are returned.
-func (c *Cursor) Prev() ([]byte, *List) {
+func (c *Cursor) Prev() ([]byte, interface{}) {
 	if key, val := c.pntr.Prev(); key != nil {
-		return key, val.(*List)
+		return key, val.(*list).Get(c.ver)
 	}
 	return nil, nil
 }
@@ -75,9 +76,9 @@ func (c *Cursor) Prev() ([]byte, *List) {
 // returned, and if the cursor is at the end of the tree then a nil key
 // and value are returned. If the cursor has not yet been positioned
 // using First, Last, or Seek, then a nil key and value are returned.
-func (c *Cursor) Next() ([]byte, *List) {
+func (c *Cursor) Next() ([]byte, interface{}) {
 	if key, val := c.pntr.Next(); key != nil {
-		return key, val.(*List)
+		return key, val.(*list).Get(c.ver)
 	}
 	return nil, nil
 }
@@ -85,9 +86,9 @@ func (c *Cursor) Next() ([]byte, *List) {
 // Seek moves the cursor to a given key in the tree and returns it.
 // If the specified key does not exist then the next key in the tree
 // is used. If no keys follow, then a nil key and value are returned.
-func (c *Cursor) Seek(k []byte) ([]byte, *List) {
-	if key, val := c.pntr.Seek(k); key != nil {
-		return key, val.(*List)
+func (c *Cursor) Seek(key []byte) ([]byte, interface{}) {
+	if key, val := c.pntr.Seek(key); key != nil {
+		return key, val.(*list).Get(c.ver)
 	}
 	return nil, nil
 }
