@@ -49,7 +49,7 @@ func (c *Copy) Cursor(ver int64) *Cursor {
 // Get is used to retrieve a specific key, returning the current value.
 func (c *Copy) Get(ver int64, key []byte) []byte {
 	if val := c.root.get(key); val != nil {
-		return val.(*Item).Get(ver)
+		return val.Get(ver)
 	}
 	return nil
 }
@@ -59,7 +59,7 @@ func (c *Copy) Del(ver int64, key []byte) []byte {
 
 	if ver > 0 {
 		if val := c.root.get(key); val != nil {
-			return val.(*Item).Del(ver)
+			return val.Del(ver)
 		}
 		return nil
 	}
@@ -167,7 +167,7 @@ func (c *Copy) put(p, n *Node, t int64, s, k, v []byte) (*Node, *leaf, []byte) {
 
 		// Create the leaf if necessary
 		if !n.isLeaf() {
-			d.leaf = &leaf{key: k, val: newList()}
+			d.leaf = &leaf{key: k, val: newItem()}
 		}
 
 		// Get the old value
@@ -189,7 +189,7 @@ func (c *Copy) put(p, n *Node, t int64, s, k, v []byte) (*Node, *leaf, []byte) {
 		e := &Node{
 			leaf: &leaf{
 				key: k,
-				val: newList(),
+				val: newItem(),
 			},
 			prefix: s,
 		}
@@ -228,7 +228,7 @@ func (c *Copy) put(p, n *Node, t int64, s, k, v []byte) (*Node, *leaf, []byte) {
 	// Create a new leaf node
 	leaf := &leaf{
 		key: k,
-		val: newList(),
+		val: newItem(),
 	}
 	leaf.val.Put(t, v)
 

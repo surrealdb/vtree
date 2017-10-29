@@ -34,12 +34,12 @@ type leaf struct {
 
 // Min returns the key and value of the minimum item in the
 // subtree of the current node.
-func (n *Node) Min(ver int64) ([]byte, []byte) {
+func (n *Node) Min(ver int64) ([]byte, *Item) {
 
 	for {
 
 		if n.isLeaf() {
-			return n.leaf.key, n.leaf.val.Get(ver)
+			return n.leaf.key, n.leaf.val
 		}
 
 		if len(n.edges) > 0 {
@@ -56,7 +56,7 @@ func (n *Node) Min(ver int64) ([]byte, []byte) {
 
 // Max returns the key and value of the maximum item in the
 // subtree of the current node.
-func (n *Node) Max(ver int64) ([]byte, []byte) {
+func (n *Node) Max(ver int64) ([]byte, *Item) {
 
 	for {
 
@@ -66,7 +66,7 @@ func (n *Node) Max(ver int64) ([]byte, []byte) {
 		}
 
 		if n.isLeaf() {
-			return n.leaf.key, n.leaf.val.Get(ver)
+			return n.leaf.key, n.leaf.val
 		}
 
 		break
@@ -86,7 +86,7 @@ func (n *Node) Path(ver int64, key []byte, f Walker) {
 	for {
 
 		if n.leaf != nil {
-			if f(n.leaf.key, n.leaf.val.Get(ver)) {
+			if f(n.leaf.key, n.leaf.val) {
 				return
 			}
 		}
@@ -271,7 +271,7 @@ func subs(t int64, n *Node, f Walker, sub bool) bool {
 
 	// Visit the leaf values if any
 	if sub && n.leaf != nil {
-		if f(n.leaf.key, n.leaf.val.Get(t)) {
+		if f(n.leaf.key, n.leaf.val) {
 			return true
 		}
 		return false
@@ -292,7 +292,7 @@ func walk(t int64, n *Node, f Walker, sub bool) bool {
 
 	// Visit the leaf values if any
 	if n.leaf != nil {
-		if f(n.leaf.key, n.leaf.val.Get(t)) {
+		if f(n.leaf.key, n.leaf.val) {
 			return true
 		}
 	}
@@ -308,7 +308,7 @@ func walk(t int64, n *Node, f Walker, sub bool) bool {
 
 }
 
-func (n *Node) get(k []byte) interface{} {
+func (n *Node) get(k []byte) *Item {
 
 	s := k
 

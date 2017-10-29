@@ -188,20 +188,20 @@ func TestComplex(t *testing.T) {
 	Convey("Can get proper `min`", t, func() {
 		k, v := c.Root().Min(0)
 		So(k, ShouldResemble, []byte("/some"))
-		So(v, ShouldResemble, []byte("/some"))
+		So(v.Get(0), ShouldResemble, []byte("/some"))
 	})
 
 	Convey("Can get proper `max`", t, func() {
 		k, v := c.Root().Max(0)
 		So(k, ShouldResemble, []byte("/zoo/some/path"))
-		So(v, ShouldResemble, []byte("/zoo/some/path"))
+		So(v.Get(0), ShouldResemble, []byte("/zoo/some/path"))
 	})
 
 	// ------------------------------------------------------------
 
 	Convey("Can iterate tree items at `nil` with `walk`", t, func() {
 		i := 0
-		c.Root().Walk(0, nil, func(k, v []byte) (e bool) {
+		c.Root().Walk(0, nil, func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -210,7 +210,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/s` with `walk`", t, func() {
 		i := 0
-		c.Root().Walk(0, []byte("/test/zen/s"), func(k, v []byte) (e bool) {
+		c.Root().Walk(0, []byte("/test/zen/s"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -219,7 +219,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub` with `walk`", t, func() {
 		i := 0
-		c.Root().Walk(0, []byte("/test/zen/sub"), func(k, v []byte) (e bool) {
+		c.Root().Walk(0, []byte("/test/zen/sub"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -228,7 +228,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub-o` with `walk`", t, func() {
 		i := 0
-		c.Root().Walk(0, []byte("/test/zen/sub-o"), func(k, v []byte) (e bool) {
+		c.Root().Walk(0, []byte("/test/zen/sub-o"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -237,7 +237,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub-one` with `walk`", t, func() {
 		i := 0
-		c.Root().Walk(0, []byte("/test/zen/sub-one"), func(k, v []byte) (e bool) {
+		c.Root().Walk(0, []byte("/test/zen/sub-one"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -246,7 +246,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub` with `walk` and exit", t, func() {
 		i := 0
-		c.Root().Walk(0, []byte("/test/zen/sub"), func(k, v []byte) (e bool) {
+		c.Root().Walk(0, []byte("/test/zen/sub"), func(k []byte, v *Item) (e bool) {
 			i++
 			return true
 		})
@@ -257,7 +257,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/` with `subs`", t, func() {
 		i := 0
-		c.Root().Subs(0, []byte("/test/"), func(k, v []byte) (e bool) {
+		c.Root().Subs(0, []byte("/test/"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -266,7 +266,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/s` with `subs`", t, func() {
 		i := 0
-		c.Root().Subs(0, []byte("/test/zen/s"), func(k, v []byte) (e bool) {
+		c.Root().Subs(0, []byte("/test/zen/s"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -275,7 +275,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub` with `subs`", t, func() {
 		i := 0
-		c.Root().Subs(0, []byte("/test/zen/sub"), func(k, v []byte) (e bool) {
+		c.Root().Subs(0, []byte("/test/zen/sub"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -284,7 +284,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub-o` with `subs`", t, func() {
 		i := 0
-		c.Root().Subs(0, []byte("/test/zen/sub-t"), func(k, v []byte) (e bool) {
+		c.Root().Subs(0, []byte("/test/zen/sub-t"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -293,7 +293,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub-one` with `subs`", t, func() {
 		i := 0
-		c.Root().Subs(0, []byte("/test/zen/sub-one"), func(k, v []byte) (e bool) {
+		c.Root().Subs(0, []byte("/test/zen/sub-one"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -302,7 +302,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub` with `subs` and exit", t, func() {
 		i := 0
-		c.Root().Subs(0, []byte("/test/zen/sub"), func(k, v []byte) (e bool) {
+		c.Root().Subs(0, []byte("/test/zen/sub"), func(k []byte, v *Item) (e bool) {
 			i++
 			return true
 		})
@@ -313,7 +313,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `nil` with `path`", t, func() {
 		i := 0
-		c.Root().Path(0, nil, func(k, v []byte) (e bool) {
+		c.Root().Path(0, nil, func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -322,7 +322,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/s` with `path`", t, func() {
 		i := 0
-		c.Root().Path(0, []byte("/test/zen/s"), func(k, v []byte) (e bool) {
+		c.Root().Path(0, []byte("/test/zen/s"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -331,7 +331,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub` with `path`", t, func() {
 		i := 0
-		c.Root().Path(0, []byte("/test/zen/sub"), func(k, v []byte) (e bool) {
+		c.Root().Path(0, []byte("/test/zen/sub"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -340,7 +340,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub-o` with `path`", t, func() {
 		i := 0
-		c.Root().Path(0, []byte("/test/zen/sub-o"), func(k, v []byte) (e bool) {
+		c.Root().Path(0, []byte("/test/zen/sub-o"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -349,7 +349,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub-one` with `path`", t, func() {
 		i := 0
-		c.Root().Path(0, []byte("/test/zen/sub-one"), func(k, v []byte) (e bool) {
+		c.Root().Path(0, []byte("/test/zen/sub-one"), func(k []byte, v *Item) (e bool) {
 			i++
 			return
 		})
@@ -358,7 +358,7 @@ func TestComplex(t *testing.T) {
 
 	Convey("Can iterate tree items at `/test/zen/sub` with `path` and exit", t, func() {
 		i := 0
-		c.Root().Path(0, []byte("/test/zen/sub"), func(k, v []byte) (e bool) {
+		c.Root().Path(0, []byte("/test/zen/sub"), func(k []byte, v *Item) (e bool) {
 			i++
 			return true
 		})
@@ -436,7 +436,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[0]))
 		So(k, ShouldResemble, []byte(s[0]))
-		So(v, ShouldResemble, []byte(s[0]))
+		So(v.Get(0), ShouldResemble, []byte(s[0]))
 	})
 
 	Convey("Can iterate using `next`", t, func() {
@@ -448,7 +448,7 @@ func TestIterate(t *testing.T) {
 			}
 			So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[j]))
 			So(k, ShouldResemble, []byte(s[j]))
-			So(v, ShouldResemble, []byte(s[j]))
+			So(v.Get(0), ShouldResemble, []byte(s[j]))
 		}
 	})
 
@@ -466,7 +466,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[len(p)-1]))
 		So(k, ShouldResemble, []byte(s[len(p)-1]))
-		So(v, ShouldResemble, []byte(s[len(p)-1]))
+		So(v.Get(0), ShouldResemble, []byte(s[len(p)-1]))
 	})
 
 	Convey("Can iterate using `prev`", t, func() {
@@ -478,7 +478,7 @@ func TestIterate(t *testing.T) {
 			}
 			So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[j]))
 			So(k, ShouldResemble, []byte(s[j]))
-			So(v, ShouldResemble, []byte(s[j]))
+			So(v.Get(0), ShouldResemble, []byte(s[j]))
 		}
 	})
 
@@ -491,19 +491,19 @@ func TestIterate(t *testing.T) {
 	Convey("Seek nonexistant nil", t, func() {
 		k, v := i.Seek(nil)
 		So(k, ShouldResemble, []byte(s[0]))
-		So(v, ShouldResemble, []byte(s[0]))
+		So(v.Get(0), ShouldResemble, []byte(s[0]))
 	})
 
 	Convey("Seek nonexistant first byte", t, func() {
 		k, v := i.Seek([]byte{0})
 		So(k, ShouldResemble, []byte(s[0]))
-		So(v, ShouldResemble, []byte(s[0]))
+		So(v.Get(0), ShouldResemble, []byte(s[0]))
 	})
 
 	Convey("Seek nonexistant first item", t, func() {
 		k, v := i.Seek([]byte("/aaa"))
 		So(k, ShouldResemble, []byte(s[0]))
-		So(v, ShouldResemble, []byte(s[0]))
+		So(v.Get(0), ShouldResemble, []byte(s[0]))
 	})
 
 	Convey("Seek just over last item", t, func() {
@@ -532,7 +532,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[10]))
 		So(k, ShouldResemble, []byte(s[10]))
-		So(v, ShouldResemble, []byte(s[10]))
+		So(v.Get(0), ShouldResemble, []byte(s[10]))
 	})
 
 	Convey("Seek full item is correct", t, func() {
@@ -543,7 +543,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[10]))
 		So(k, ShouldResemble, []byte(s[10]))
-		So(v, ShouldResemble, []byte(s[10]))
+		So(v.Get(0), ShouldResemble, []byte(s[10]))
 	})
 
 	Convey("Seek overfull item is correct", t, func() {
@@ -554,7 +554,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[11]))
 		So(k, ShouldResemble, []byte(s[11]))
-		So(v, ShouldResemble, []byte(s[11]))
+		So(v.Get(0), ShouldResemble, []byte(s[11]))
 	})
 
 	Convey("Seek finishing item is correct", t, func() {
@@ -565,7 +565,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[32]))
 		So(k, ShouldResemble, []byte(s[32]))
-		So(v, ShouldResemble, []byte(s[32]))
+		So(v.Get(0), ShouldResemble, []byte(s[32]))
 	})
 
 	Convey("Prev item after seek is correct", t, func() {
@@ -577,7 +577,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[9]))
 		So(k, ShouldResemble, []byte(s[9]))
-		So(v, ShouldResemble, []byte(s[9]))
+		So(v.Get(0), ShouldResemble, []byte(s[9]))
 	})
 
 	Convey("Next item after seek is correct", t, func() {
@@ -589,7 +589,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[11]))
 		So(k, ShouldResemble, []byte(s[11]))
-		So(v, ShouldResemble, []byte(s[11]))
+		So(v.Get(0), ShouldResemble, []byte(s[11]))
 	})
 
 	Convey("FINAL", t, func() {
@@ -602,7 +602,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[11]))
 		So(k, ShouldResemble, []byte(s[11]))
-		So(v, ShouldResemble, []byte(s[11]))
+		So(v.Get(0), ShouldResemble, []byte(s[11]))
 	})
 
 	Convey("FINAL", t, func() {
@@ -622,7 +622,7 @@ func TestIterate(t *testing.T) {
 		}
 		So(fmt.Sprint(t), ShouldEqual, fmt.Sprint(p[15]))
 		So(k, ShouldResemble, []byte(s[15]))
-		So(v, ShouldResemble, []byte(s[15]))
+		So(v.Get(0), ShouldResemble, []byte(s[15]))
 	})
 
 }
@@ -715,7 +715,7 @@ func TestVersion(t *testing.T) {
 		i := c.Cursor(0)
 		k, v := i.Seek([]byte("/one"))
 		So(k, ShouldResemble, []byte("/one"))
-		So(v, ShouldResemble, []byte("ONE-NEW"))
+		So(v.Get(0), ShouldResemble, []byte("ONE-NEW"))
 		So(i.Item().Get(1), ShouldResemble, []byte(nil))
 		So(i.Item().Get(5), ShouldResemble, []byte("ONE"))
 		So(i.Item().Get(6), ShouldResemble, []byte("ONE-NEW"))
@@ -777,7 +777,7 @@ func TestVersion(t *testing.T) {
 		i := c.Cursor(0)
 		k, v := i.Seek([]byte("/one"))
 		So(k, ShouldResemble, []byte("/one"))
-		So(v, ShouldResemble, []byte(nil))
+		So(v.Get(0), ShouldResemble, []byte(nil))
 		So(i.Item().Get(1), ShouldResemble, []byte(nil))
 		So(i.Item().Get(5), ShouldResemble, []byte("ONE"))
 		So(i.Item().Get(6), ShouldResemble, []byte("ONE-NEW"))
@@ -808,7 +808,7 @@ func TestVersion(t *testing.T) {
 		i := c.Cursor(0)
 		k, v := i.Seek([]byte("/two"))
 		So(k, ShouldResemble, []byte("/two"))
-		So(v, ShouldResemble, []byte("TWO-NEW"))
+		So(v.Get(0), ShouldResemble, []byte("TWO-NEW"))
 		So(i.Item().Get(1), ShouldResemble, []byte(nil))
 		So(i.Item().Get(5), ShouldResemble, []byte("TWO"))
 		So(i.Item().Get(6), ShouldResemble, []byte("TWO-NEW"))
@@ -870,7 +870,7 @@ func TestVersion(t *testing.T) {
 		i := c.Cursor(0)
 		k, v := i.Seek([]byte("/two"))
 		So(k, ShouldResemble, []byte("/two"))
-		So(v, ShouldResemble, []byte(nil))
+		So(v.Get(0), ShouldResemble, []byte(nil))
 		So(i.Item().Get(1), ShouldResemble, []byte(nil))
 		So(i.Item().Get(5), ShouldResemble, []byte("TWO"))
 		So(i.Item().Get(6), ShouldResemble, []byte("TWO-NEW"))

@@ -24,7 +24,7 @@ type Item struct {
 	pntr *tlist.List
 }
 
-func newList() *Item {
+func newItem() *Item {
 	return &Item{
 		pntr: tlist.New(),
 	}
