@@ -114,9 +114,7 @@ OUTER:
 
 				if n.isLeaf() {
 					c.seek = n.leaf.key
-					if val := n.leaf.val.Get(c.ver); val != nil {
-						return n.leaf.key, val
-					}
+					return n.leaf.key, n.leaf.val.Get(c.ver)
 				}
 
 				continue
@@ -151,9 +149,7 @@ OUTER:
 
 					if n.isLeaf() {
 						c.seek = n.leaf.key
-						if val := n.leaf.val.Get(c.ver); val != nil {
-							return n.leaf.key, val
-						}
+						return n.leaf.key, n.leaf.val.Get(c.ver)
 					}
 
 					continue OUTER
@@ -199,9 +195,7 @@ OUTER:
 
 				if n.isLeaf() {
 					c.seek = n.leaf.key
-					if val := n.leaf.val.Get(c.ver); val != nil {
-						return n.leaf.key, val
-					}
+					return n.leaf.key, n.leaf.val.Get(c.ver)
 				}
 
 				continue
@@ -232,9 +226,7 @@ OUTER:
 
 				if n.isLeaf() {
 					c.seek = n.leaf.key
-					if val := n.leaf.val.Get(c.ver); val != nil {
-						return n.leaf.key, val
-					}
+					return n.leaf.key, n.leaf.val.Get(c.ver)
 				}
 
 				continue OUTER
@@ -354,9 +346,7 @@ func (c *Cursor) first(n *Node) ([]byte, []byte) {
 
 		if n.isLeaf() {
 			c.seek = n.leaf.key
-			if val := n.leaf.val.Get(c.ver); val != nil {
-				return n.leaf.key, val
-			}
+			return n.leaf.key, n.leaf.val.Get(c.ver)
 		}
 
 		if len(n.edges) > 0 {
@@ -384,9 +374,7 @@ func (c *Cursor) last(n *Node) ([]byte, []byte) {
 
 		if n.isLeaf() {
 			c.seek = n.leaf.key
-			if val := n.leaf.val.Get(c.ver); val != nil {
-				return n.leaf.key, val
-			}
+			return n.leaf.key, n.leaf.val.Get(c.ver)
 		}
 
 		break

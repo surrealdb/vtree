@@ -39,9 +39,7 @@ func (n *Node) Min(ver int64) ([]byte, []byte) {
 	for {
 
 		if n.isLeaf() {
-			if val := n.leaf.val.Get(ver); val != nil {
-				return n.leaf.key, val
-			}
+			return n.leaf.key, n.leaf.val.Get(ver)
 		}
 
 		if len(n.edges) > 0 {
@@ -68,9 +66,7 @@ func (n *Node) Max(ver int64) ([]byte, []byte) {
 		}
 
 		if n.isLeaf() {
-			if val := n.leaf.val.Get(ver); val != nil {
-				return n.leaf.key, val
-			}
+			return n.leaf.key, n.leaf.val.Get(ver)
 		}
 
 		break
@@ -89,8 +85,10 @@ func (n *Node) Path(ver int64, key []byte, f Walker) {
 
 	for {
 
-		if n.leaf != nil && f(n.leaf.key, n.leaf.val.Get(ver)) {
-			return
+		if n.leaf != nil {
+			if f(n.leaf.key, n.leaf.val.Get(ver)) {
+				return
+			}
 		}
 
 		if len(s) == 0 {
@@ -273,12 +271,10 @@ func subs(t int64, n *Node, f Walker, sub bool) bool {
 
 	// Visit the leaf values if any
 	if sub && n.leaf != nil {
-		if val := n.leaf.val.Get(t); val != nil {
-			if f(n.leaf.key, val) {
-				return true
-			}
-			return false
+		if f(n.leaf.key, n.leaf.val.Get(t)) {
+			return true
 		}
+		return false
 	}
 
 	// Recurse on the children
@@ -296,10 +292,8 @@ func walk(t int64, n *Node, f Walker, sub bool) bool {
 
 	// Visit the leaf values if any
 	if n.leaf != nil {
-		if val := n.leaf.val.Get(t); val != nil {
-			if f(n.leaf.key, val) {
-				return true
-			}
+		if f(n.leaf.key, n.leaf.val.Get(t)) {
+			return true
 		}
 	}
 

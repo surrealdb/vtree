@@ -122,10 +122,6 @@ func (c *Copy) del(p, n *Node, t int64, s []byte) (*Node, *leaf, []byte) {
 			d.mergeChild()
 		}
 
-		if t == 0 {
-
-		}
-
 		// Return the found node and leaf node
 		return d, n.leaf, n.leaf.val.Get(t)
 
