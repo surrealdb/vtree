@@ -29,7 +29,7 @@ type Node struct {
 
 type leaf struct {
 	key []byte
-	val *list
+	val *Item
 }
 
 // Min returns the key and value of the minimum item in the

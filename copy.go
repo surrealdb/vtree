@@ -47,9 +47,9 @@ func (c *Copy) Cursor(ver int64) *Cursor {
 }
 
 // Get is used to retrieve a specific key, returning the current value.
-	if lst := c.root.get(key); lst != nil {
-		return lst.(*list).Get(ver)
 func (c *Copy) Get(ver int64, key []byte) []byte {
+	if val := c.root.get(key); val != nil {
+		return val.(*Item).Get(ver)
 	}
 	return nil
 }
@@ -58,8 +58,8 @@ func (c *Copy) Get(ver int64, key []byte) []byte {
 func (c *Copy) Del(ver int64, key []byte) []byte {
 
 	if ver > 0 {
-		if lst := c.root.get(key); lst != nil {
-			return lst.(*list).Del(ver)
+		if val := c.root.get(key); val != nil {
+			return val.(*Item).Del(ver)
 		}
 		return nil
 	}
