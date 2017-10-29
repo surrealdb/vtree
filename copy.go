@@ -42,8 +42,8 @@ func (c *Copy) Tree() *Tree {
 }
 
 // Cursor returns a new cursor for iterating through the radix tree.
-func (c *Copy) Cursor(ver int64) *Cursor {
-	return &Cursor{tree: c, ver: ver}
+func (c *Copy) Cursor() *Cursor {
+	return &Cursor{tree: c}
 }
 
 // Get is used to retrieve a specific key, returning the current value.

@@ -34,7 +34,7 @@ type leaf struct {
 
 // Min returns the key and value of the minimum item in the
 // subtree of the current node.
-func (n *Node) Min(ver int64) ([]byte, *Item) {
+func (n *Node) Min() ([]byte, *Item) {
 
 	for {
 
@@ -56,7 +56,7 @@ func (n *Node) Min(ver int64) ([]byte, *Item) {
 
 // Max returns the key and value of the maximum item in the
 // subtree of the current node.
-func (n *Node) Max(ver int64) ([]byte, *Item) {
+func (n *Node) Max() ([]byte, *Item) {
 
 	for {
 
@@ -79,9 +79,9 @@ func (n *Node) Max(ver int64) ([]byte, *Item) {
 
 // Path is used to recurse over the tree only visiting nodes
 // which are above this node in the tree.
-func (n *Node) Path(ver int64, key []byte, f Walker) {
+func (n *Node) Path(k []byte, f Walker) {
 
-	s := key
+	s := k
 
 	for {
 
@@ -111,15 +111,15 @@ func (n *Node) Path(ver int64, key []byte, f Walker) {
 
 // Subs is used to recurse over the tree only visiting nodes
 // which are directly under this node in the tree.
-func (n *Node) Subs(ver int64, key []byte, f Walker) {
+func (n *Node) Subs(k []byte, f Walker) {
 
-	s := key
+	s := k
 
 	for {
 
 		// Check for key exhaution
 		if len(s) == 0 {
-			subs(ver, n, f, false)
+			subs(n, f, false)
 			return
 		}
 
@@ -132,7 +132,7 @@ func (n *Node) Subs(ver int64, key []byte, f Walker) {
 		if bytes.HasPrefix(s, n.prefix) {
 			s = s[len(n.prefix):]
 		} else if bytes.HasPrefix(n.prefix, s) {
-			subs(ver, n, f, true)
+			subs(n, f, true)
 			return
 		} else {
 			break
@@ -144,15 +144,15 @@ func (n *Node) Subs(ver int64, key []byte, f Walker) {
 
 // Walk is used to recurse over the tree only visiting nodes
 // which are under this node in the tree.
-func (n *Node) Walk(ver int64, key []byte, f Walker) {
+func (n *Node) Walk(k []byte, f Walker) {
 
-	s := key
+	s := k
 
 	for {
 
 		// Check for key exhaution
 		if len(s) == 0 {
-			walk(ver, n, f, false)
+			walk(n, f, false)
 			return
 		}
 
@@ -165,7 +165,7 @@ func (n *Node) Walk(ver int64, key []byte, f Walker) {
 		if bytes.HasPrefix(s, n.prefix) {
 			s = s[len(n.prefix):]
 		} else if bytes.HasPrefix(n.prefix, s) {
-			walk(ver, n, f, false)
+			walk(n, f, false)
 			return
 		} else {
 			break
@@ -267,7 +267,7 @@ func (n *Node) mergeChild() {
 	}
 }
 
-func subs(t int64, n *Node, f Walker, sub bool) bool {
+func subs(n *Node, f Walker, sub bool) bool {
 
 	// Visit the leaf values if any
 	if sub && n.leaf != nil {
@@ -279,7 +279,7 @@ func subs(t int64, n *Node, f Walker, sub bool) bool {
 
 	// Recurse on the children
 	for _, e := range n.edges {
-		if subs(t, e, f, true) {
+		if subs(e, f, true) {
 			return true
 		}
 	}
@@ -288,7 +288,7 @@ func subs(t int64, n *Node, f Walker, sub bool) bool {
 
 }
 
-func walk(t int64, n *Node, f Walker, sub bool) bool {
+func walk(n *Node, f Walker, sub bool) bool {
 
 	// Visit the leaf values if any
 	if n.leaf != nil {
@@ -299,7 +299,7 @@ func walk(t int64, n *Node, f Walker, sub bool) bool {
 
 	// Recurse on the children
 	for _, e := range n.edges {
-		if walk(t, e, f, true) {
+		if walk(e, f, true) {
 			return true
 		}
 	}

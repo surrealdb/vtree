@@ -25,7 +25,6 @@ import (
 // invalidated and return unexpected keys and/or values. You must
 // reposition your cursor after mutating data.
 type Cursor struct {
-	ver  int64
 	tree *Copy
 	seek []byte
 	path []*item
@@ -52,7 +51,7 @@ func (c *Cursor) Item() *Item {
 // then no item is deleted and a nil key and value are returned.
 func (c *Cursor) Del() ([]byte, []byte) {
 
-	val := c.tree.Del(c.ver, c.seek)
+	val := c.tree.Del(0, c.seek)
 
 	return c.seek, val
 
