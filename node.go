@@ -34,7 +34,7 @@ type leaf struct {
 
 // Min returns the key and value of the minimum item in the
 // subtree of the current node.
-func (n *Node) Min(ver int64) ([]byte, interface{}) {
+func (n *Node) Min(ver int64) ([]byte, []byte) {
 
 	for {
 
@@ -58,7 +58,7 @@ func (n *Node) Min(ver int64) ([]byte, interface{}) {
 
 // Max returns the key and value of the maximum item in the
 // subtree of the current node.
-func (n *Node) Max(ver int64) ([]byte, interface{}) {
+func (n *Node) Max(ver int64) ([]byte, []byte) {
 
 	for {
 

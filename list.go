@@ -32,7 +32,7 @@ func newList() *list {
 
 // Put inserts a value with the specified version number. It
 // returns the previous value, or nil if it does not exist.
-func (l *list) Put(ver int64, val interface{}) interface{} {
+func (i *Item) Put(ver int64, val []byte) []byte {
 
 	var i *tlist.Item
 	var o interface{}
@@ -63,7 +63,7 @@ func (l *list) Put(ver int64, val interface{}) interface{} {
 // If math.MinInt64 is specified for the version, then the
 // first item will be returned, and if math.MaxInt64 is used
 // then the latest item will be returned.
-func (l *list) Get(ver int64) interface{} {
+func (i *Item) Get(ver int64) []byte {
 
 	var i *tlist.Item
 
@@ -87,7 +87,7 @@ func (l *list) Get(ver int64) interface{} {
 // If math.MinInt64 is specified for the version, then the
 // first item will be deleted, and if math.MaxInt64 is used
 // then the latest item will be deleted.
-func (l *list) Del(ver int64) interface{} {
+func (i *Item) Del(ver int64) []byte {
 
 	if i := l.pntr.Del(ver, tlist.Upto); i != nil {
 		return i.Del().Val()
@@ -98,7 +98,7 @@ func (l *list) Del(ver int64) interface{} {
 }
 
 // Min returns the value of the minium version in the list.
-func (l *list) Min() interface{} {
+func (i *Item) Min() []byte {
 
 	if i := l.pntr.Min(); i != nil {
 		return i.Val()
@@ -109,7 +109,7 @@ func (l *list) Min() interface{} {
 }
 
 // Max returns the value of the maximum version in the list.
-func (l *list) Max() interface{} {
+func (i *Item) Max() []byte {
 
 	if i := l.pntr.Max(); i != nil {
 		return i.Val()
