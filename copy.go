@@ -47,7 +47,7 @@ func (c *Copy) Cursor() *Cursor {
 }
 
 // Get is used to retrieve a specific key, returning the current value.
-func (c *Copy) Get(ver uint64, key []byte) interface{} {
+func (c *Copy) Get(ver uint64, key []byte) []byte {
 	if val := c.root.get(key); val != nil {
 		return val.Get(ver)
 	}
@@ -55,7 +55,7 @@ func (c *Copy) Get(ver uint64, key []byte) interface{} {
 }
 
 // Del is used to delete a given key, returning the previous value.
-func (c *Copy) Cut(key []byte) interface{} {
+func (c *Copy) Cut(key []byte) []byte {
 	root, leaf, old := c.del(nil, c.root, key)
 	if root != nil {
 		c.root = root
@@ -67,7 +67,7 @@ func (c *Copy) Cut(key []byte) interface{} {
 }
 
 // Del is used to delete a given key, returning the previous value.
-func (c *Copy) Del(ver uint64, key []byte) interface{} {
+func (c *Copy) Del(ver uint64, key []byte) []byte {
 	if val := c.root.get(key); val != nil {
 		return val.Del(ver)
 	}
@@ -75,7 +75,7 @@ func (c *Copy) Del(ver uint64, key []byte) interface{} {
 }
 
 // Put is used to insert a specific key, returning the previous value.
-func (c *Copy) Put(ver uint64, key []byte, val interface{}) interface{} {
+func (c *Copy) Put(ver uint64, key, val []byte) []byte {
 	root, leaf, old := c.put(nil, c.root, ver, key, key, val)
 	if root != nil {
 		c.root = root
@@ -104,7 +104,7 @@ func concat(a, b []byte) (c []byte) {
 	return
 }
 
-func (c *Copy) del(p, n *Node, s []byte) (*Node, *leaf, interface{}) {
+func (c *Copy) del(p, n *Node, s []byte) (*Node, *leaf, []byte) {
 
 	if len(s) == 0 {
 
@@ -159,7 +159,7 @@ func (c *Copy) del(p, n *Node, s []byte) (*Node, *leaf, interface{}) {
 
 }
 
-func (c *Copy) put(p, n *Node, t uint64, s, k []byte, v interface{}) (*Node, *leaf, interface{}) {
+func (c *Copy) put(p, n *Node, t uint64, s, k, v []byte) (*Node, *leaf, []byte) {
 
 	if len(s) == 0 {
 
