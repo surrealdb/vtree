@@ -32,87 +32,47 @@ func newItem() *Item {
 
 // Put inserts a value with the specified version number. It
 // returns the previous value, or nil if it does not exist.
-func (i *Item) Put(ver int64, val []byte) []byte {
-
-	var v *tlist.Item
-	var o []byte
-
-	switch ver {
-	default:
-		v = i.pntr.Get(ver, tlist.Upto)
-	case 0:
-		v = i.pntr.Max()
+func (i *Item) Put(ver uint64, val interface{}) interface{} {
+	if v := i.pntr.Put(ver, val); v != nil {
+		return v.Val()
 	}
-
-	if v != nil {
-		o = v.Val()
-	}
-
-	if v != nil && v.Ver() == ver {
-		v.Set(val)
-	} else {
-		i.pntr.Put(ver, val)
-	}
-
-	return o
-
+	return nil
 }
 
 // Get selects a value with the specified version number, or
 // the nearest latest value prior to the specified version.
 // If '0' is specified for the version, then the latest item
 // will be returned.
-func (i *Item) Get(ver int64) []byte {
-
-	var v *tlist.Item
-
-	switch ver {
-	default:
-		v = i.pntr.Get(ver, tlist.Upto)
-	case 0:
-		v = i.pntr.Max()
-	}
-
-	if v != nil {
+func (i *Item) Get(ver uint64) interface{} {
+	if v := i.pntr.Get(ver, tlist.Upto); v != nil {
 		return v.Val()
 	}
-
 	return nil
-
 }
 
 // Del deletes a value with the specified version number, or
 // the nearest latest value prior to the specified version.
-func (i *Item) Del(ver int64) []byte {
-
+func (i *Item) Del(ver uint64) interface{} {
 	if v := i.pntr.Del(ver, tlist.Upto); v != nil {
-		return v.Del().Val()
+		return v.Val()
 	}
-
 	return nil
-
 }
 
 // Min returns the value of the minium version in the list.
-func (i *Item) Min() []byte {
-
+func (i *Item) Min() interface{} {
 	if v := i.pntr.Min(); v != nil {
 		return v.Val()
 	}
-
 	return nil
-
 }
 
 // Max returns the value of the maximum version in the list.
-func (i *Item) Max() []byte {
-
+func (i *Item) Max() interface{} {
 	if v := i.pntr.Max(); v != nil {
 		return v.Val()
 	}
-
 	return nil
-
 }
 
 // Seek searches for a value prior to the specified version
@@ -120,31 +80,17 @@ func (i *Item) Max() []byte {
 // is specified for the version, then the first item will be
 // returned, and if math.MaxInt64 is used then the latest item
 // will be returned.
-func (i *Item) Seek(ver int64) (int64, []byte) {
-
-	var v *tlist.Item
-
-	switch ver {
-	default:
-		v = i.pntr.Get(ver, tlist.Upto)
-	case 0:
-		v = i.pntr.Max()
-	}
-
-	if v != nil {
+func (i *Item) Seek(ver uint64) (uint64, interface{}) {
+	if v := i.pntr.Get(ver, tlist.Upto); v != nil {
 		return v.Ver(), v.Val()
 	}
-
-	return -1, nil
-
+	return 0, nil
 }
 
 // Walk iterates through all of the versions and values in the
 // list, in order of version, starting at the first version.
-func (i *Item) Walk(fn func(ver int64, val []byte) (exit bool)) {
-
+func (i *Item) Walk(fn func(ver uint64, val interface{}) bool) {
 	i.pntr.Walk(func(i *tlist.Item) bool {
 		return fn(i.Ver(), i.Val())
 	})
-
 }

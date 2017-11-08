@@ -47,7 +47,7 @@ func (c *Copy) Cursor() *Cursor {
 }
 
 // Get is used to retrieve a specific key, returning the current value.
-func (c *Copy) Get(ver int64, key []byte) []byte {
+func (c *Copy) Get(ver uint64, key []byte) interface{} {
 	if val := c.root.get(key); val != nil {
 		return val.Get(ver)
 	}
@@ -55,16 +55,8 @@ func (c *Copy) Get(ver int64, key []byte) []byte {
 }
 
 // Del is used to delete a given key, returning the previous value.
-func (c *Copy) Del(ver int64, key []byte) []byte {
-
-	if ver > 0 {
-		if val := c.root.get(key); val != nil {
-			return val.Del(ver)
-		}
-		return nil
-	}
-
-	root, leaf, old := c.del(nil, c.root, ver, key)
+func (c *Copy) Cut(key []byte) interface{} {
+	root, leaf, old := c.del(nil, c.root, key)
 	if root != nil {
 		c.root = root
 	}
@@ -74,8 +66,16 @@ func (c *Copy) Del(ver int64, key []byte) []byte {
 	return old
 }
 
+// Del is used to delete a given key, returning the previous value.
+func (c *Copy) Del(ver uint64, key []byte) interface{} {
+	if val := c.root.get(key); val != nil {
+		return val.Del(ver)
+	}
+	return nil
+}
+
 // Put is used to insert a specific key, returning the previous value.
-func (c *Copy) Put(ver int64, key, val []byte) []byte {
+func (c *Copy) Put(ver uint64, key []byte, val interface{}) interface{} {
 	root, leaf, old := c.put(nil, c.root, ver, key, key, val)
 	if root != nil {
 		c.root = root
@@ -104,7 +104,7 @@ func concat(a, b []byte) (c []byte) {
 	return
 }
 
-func (c *Copy) del(p, n *Node, t int64, s []byte) (*Node, *leaf, []byte) {
+func (c *Copy) del(p, n *Node, s []byte) (*Node, *leaf, interface{}) {
 
 	if len(s) == 0 {
 
@@ -123,7 +123,7 @@ func (c *Copy) del(p, n *Node, t int64, s []byte) (*Node, *leaf, []byte) {
 		}
 
 		// Return the found node and leaf node
-		return d, n.leaf, n.leaf.val.Get(t)
+		return d, n.leaf, n.leaf.val.Max()
 
 	}
 
@@ -137,7 +137,7 @@ func (c *Copy) del(p, n *Node, t int64, s []byte) (*Node, *leaf, []byte) {
 	// Consume the search prefix
 	s = s[len(e.prefix):]
 
-	node, leaf, old := c.del(n, e, t, s)
+	node, leaf, old := c.del(n, e, s)
 	if node == nil {
 		return nil, nil, nil
 	}
@@ -159,7 +159,7 @@ func (c *Copy) del(p, n *Node, t int64, s []byte) (*Node, *leaf, []byte) {
 
 }
 
-func (c *Copy) put(p, n *Node, t int64, s, k, v []byte) (*Node, *leaf, []byte) {
+func (c *Copy) put(p, n *Node, t uint64, s, k []byte, v interface{}) (*Node, *leaf, interface{}) {
 
 	if len(s) == 0 {
 

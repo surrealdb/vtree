@@ -35,21 +35,10 @@ type item struct {
 	node *Node
 }
 
-// Item returns the current item under the cursor.
-func (c *Cursor) Item() *Item {
-
-	if n := c.node(); n != nil {
-		return n.leaf.val
-	}
-
-	return nil
-
-}
-
 // Del removes the current item under the cursor from the tree. If
 // the cursor has not yet been positioned using First, Last, or Seek,
 // then no item is deleted and a nil key and value are returned.
-func (c *Cursor) Del() ([]byte, []byte) {
+func (c *Cursor) Del() ([]byte, interface{}) {
 
 	val := c.tree.Del(0, c.seek)
 
