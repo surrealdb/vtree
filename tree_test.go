@@ -568,6 +568,12 @@ func TestIterate(t *testing.T) {
 		So(v.Get(0), ShouldResemble, []byte(s[32]))
 	})
 
+	Convey("Seek finalising item is correct", t, func() {
+		k, v := i.Seek([]byte("/zoo/some/xxxx"))
+		So(v, ShouldBeNil)
+		So(k, ShouldBeNil)
+	})
+
 	Convey("Prev item after seek is correct", t, func() {
 		i.Seek([]byte(s[10]))
 		k, v := i.Prev()

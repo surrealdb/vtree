@@ -297,6 +297,7 @@ func (c *Cursor) Seek(key []byte) ([]byte, *Item) {
 			s = s[:0]
 			continue
 		} else if bytes.Compare(s, n.prefix) > 0 {
+			c.path = append(c.path, &item{pos: x, node: t})
 			c.last(n)
 			return c.Next()
 		}
