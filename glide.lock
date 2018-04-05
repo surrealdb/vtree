@@ -1,8 +1,8 @@
 hash: 6503098d14c8006b6498706604834af6a6d07ae02e4e71f16d4808c39d74c1e8
-updated: 2018-04-05T08:04:34.232226+01:00
+updated: 2018-04-05T08:42:57.190454+01:00
 imports:
 - name: github.com/abcum/tlist
-  version: ea0673d35e6b4538880043be17e461fa321466c8
+  version: 555faebc1115b203cdb7aac00178d8f59bb4f186
 testImports:
 - name: github.com/gopherjs/gopherjs
   version: 82b322028c96512b15077093b16a5f1c7ea897ac
