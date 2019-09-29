@@ -54,7 +54,7 @@ func (c *Copy) Get(ver uint64, key []byte) []byte {
 	return nil
 }
 
-// Del is used to delete a given key, returning the previous value.
+// Cut is used to delete a given key, returning the previous value.
 func (c *Copy) Cut(key []byte) []byte {
 	root, leaf, old := c.del(nil, c.root, key)
 	if root != nil {
