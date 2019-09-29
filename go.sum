@@ -1,7 +1,9 @@
-github.com/abcum/tlist v0.0.0-20190928205620-d2569dc0f9a5 h1:wwyfV8URVyPWbn8EwnwGdWfwLrv9yrjdUA5B2RBWlVE=
-github.com/abcum/tlist v0.0.0-20190928205620-d2569dc0f9a5/go.mod h1:GXP3CY+bKYON6Py/BrelUo7ImuXH/LJFpx7L14DehUA=
+github.com/abcum/bump v0.0.0-20190929092354-46a9c9dbf9ab h1:S7Bp0inII96zGek8nipouocogy9xjMcJuDUKIb/+jkw=
+github.com/abcum/bump v0.0.0-20190929092354-46a9c9dbf9ab/go.mod h1:nhz3F2Uy1ra958EB0V4uR1WjTdLmpiznz7sqMdRBi7A=
 github.com/abcum/tlist v0.0.0-20190928231100-a6e1cebe338b h1:HAkvXaCAjMf+Th8SXBYNJ+vpCU+2lBqpQmrYFQZD4q4=
 github.com/abcum/tlist v0.0.0-20190928231100-a6e1cebe338b/go.mod h1:GXP3CY+bKYON6Py/BrelUo7ImuXH/LJFpx7L14DehUA=
+github.com/abcum/tlist v0.0.0-20190929092457-e48636eb27bf h1:uxjY7m5I50ui+gMDsM3vg8R9beb2uc7iQpJZ45mHqbw=
+github.com/abcum/tlist v0.0.0-20190929092457-e48636eb27bf/go.mod h1:GXP3CY+bKYON6Py/BrelUo7ImuXH/LJFpx7L14DehUA=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 h1:EGx4pi6eqNxGaHF6qqu48+N2wcFQ5qg5FXgOdqsJ5d8=
 github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1/go.mod h1:wJfORRmW1u3UXTncJ5qlYoELFm8eSnnEO6hX4iZ3EWY=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
