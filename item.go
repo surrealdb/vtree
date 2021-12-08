@@ -15,7 +15,7 @@
 package vtree
 
 import (
-	"github.com/abcum/tlist"
+	"github.com/surrealdb/tlist"
 )
 
 // Item represents a collection of versions and values, stored
